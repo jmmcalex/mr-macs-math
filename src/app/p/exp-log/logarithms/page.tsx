@@ -4,30 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import PlaygroundShell from "@/components/PlaygroundShell";
 import TopNav from "@/components/TopNav";
-
-type DesmosCalculator = {
-  setExpression: (expression: { id: string; latex: string }) => void;
-  setMathBounds: (bounds: {
-    left: number;
-    right: number;
-    bottom: number;
-    top: number;
-  }) => void;
-  resize: () => void;
-  destroy: () => void;
-};
-
-declare global {
-  interface Window {
-    Desmos?: {
-      GraphingCalculator: (
-        element: HTMLElement,
-        options: Record<string, unknown>
-      ) => DesmosCalculator;
-    };
-    __desmosPromise?: Promise<NonNullable<Window["Desmos"]>>;
-  }
-}
+import type { DesmosCalculator } from "@/types/desmos";
 
 const DESMOS_API_KEY = process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "";
 const DESMOS_SRC = `https://www.desmos.com/api/v1.6/calculator.js?apiKey=${encodeURIComponent(

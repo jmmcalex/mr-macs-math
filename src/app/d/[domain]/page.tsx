@@ -7,6 +7,12 @@ type DomainPageProps = {
   params: Promise<{ domain: string }>;
 };
 
+export async function generateStaticParams() {
+  return domains.map((domain) => ({
+    domain: domain.slug,
+  }));
+}
+
 export default async function DomainPage({ params }: DomainPageProps) {
   const { domain } = await params;
   const domainSlug = decodeURIComponent(domain).toLowerCase();

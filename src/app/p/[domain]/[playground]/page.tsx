@@ -8,18 +8,33 @@ type PlaygroundPageProps = {
   params: Promise<{ domain: string; playground: string }>;
 };
 
+export async function generateStaticParams() {
+  const params: { domain: string; playground: string }[] = [];
+  
+  for (const domain of domains) {
+    for (const playground of domain.playgrounds) {
+      params.push({
+        domain: domain.slug,
+        playground: playground.slug,
+      });
+    }
+  }
+  
+  return params;
+}
+
 export default async function PlaygroundPage({ params }: PlaygroundPageProps) {
   const { domain, playground } = await params;
   const domainSlug = decodeURIComponent(domain).toLowerCase();
   const playgroundSlug = decodeURIComponent(playground).toLowerCase();
-  const domain = domains.find((item) => item.slug === domainSlug);
-  const playground = domain?.playgrounds.find(
+  const domainItem = domains.find((item) => item.slug === domainSlug);
+  const playgroundItem = domainItem?.playgrounds.find(
     (item) => item.slug === playgroundSlug
   );
 
-  const title = playground?.title ?? "Playground";
+  const title = playgroundItem?.title ?? "Playground";
   const prompt =
-    playground?.summary ?? "Start exploring the idea in this playground.";
+    playgroundItem?.summary ?? "Start exploring the idea in this playground.";
 
   return (
     <div>
@@ -28,8 +43,8 @@ export default async function PlaygroundPage({ params }: PlaygroundPageProps) {
         prompt={prompt}
         topNav={
           <TopNav
-            backHref={domain ? `/d/${domain.slug}` : "/domains"}
-            backLabel={domain?.title ?? "Domains"}
+            backHref={domainItem ? `/d/${domainItem.slug}` : "/domains"}
+            backLabel={domainItem?.title ?? "Domains"}
           />
         }
       >
@@ -42,7 +57,7 @@ export default async function PlaygroundPage({ params }: PlaygroundPageProps) {
       <div className="px-5 pb-10">
         <Link
           className="inline-flex items-center gap-2 text-sm font-semibold text-amber-900"
-          href={domain ? `/d/${domain.slug}` : "/domains"}
+          href={domainItem ? `/d/${domainItem.slug}` : "/domains"}
         >
           ← Back to domain
         </Link>
