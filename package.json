@@ -10,7 +10,6 @@
     "deploy": "next build && touch out/.nojekyll"
   },
   "dependencies": {
-    "lightningcss-darwin-arm64": "^1.30.2",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3"
