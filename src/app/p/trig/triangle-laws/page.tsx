@@ -17,19 +17,12 @@ import {
 } from "@/lib/triangleMath";
 
 const DESMOS_API_KEY = process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "";
-const DESMOS_SRC = `https://www.desmos.com/api/v1.6/calculator.js?apiKey=${encodeURIComponent(
+const DESMOS_SRC = `https://www.desmos.com/api/v1.11/calculator.js?apiKey=${encodeURIComponent(
   DESMOS_API_KEY
 )}`;
 
 const BASE_LENGTH = 10;
 const DEFAULT_BOUNDS = { left: -2, right: 12, bottom: -2, top: 10 };
-const OVERLAY_VIEWBOX = `${DEFAULT_BOUNDS.left} ${DEFAULT_BOUNDS.bottom} ${
-  DEFAULT_BOUNDS.right - DEFAULT_BOUNDS.left
-} ${DEFAULT_BOUNDS.top - DEFAULT_BOUNDS.bottom}`;
-const OVERLAY_TRANSFORM = `translate(0 ${
-  DEFAULT_BOUNDS.top + DEFAULT_BOUNDS.bottom
-}) scale(1 -1)`;
-
 const loadDesmos = (): Promise<DesmosGlobal> => {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Desmos can only load in the browser."));
@@ -136,18 +129,27 @@ export default function TriangleLawsPlaygroundPage() {
       });
     };
 
-    setExpr("A", "A=(0,0)");
-    setExpr("B", `B=(${BASE_LENGTH},0)`);
-    setExpr("C", `C=(${xC},${yC})`);
+    setExpr("P_A", "P_A=(0,0)");
+    setExpr("P_B", `P_B=(${BASE_LENGTH},0)`);
+    setExpr("P_C", `P_C=(${xC},${yC})`);
 
-    setExpr("AB", "segment(A,B)", false, { color: "#4b2a10", lineWidth: 2 });
-    setExpr("BC", "segment(B,C)", false, { color: "#4b2a10", lineWidth: 2 });
-    setExpr("CA", "segment(C,A)", false, { color: "#4b2a10", lineWidth: 2 });
+    setExpr("AB", "segment(P_A,P_B)", false, {
+      color: "#4b2a10",
+      lineWidth: 2,
+    });
+    setExpr("BC", "segment(P_B,P_C)", false, {
+      color: "#4b2a10",
+      lineWidth: 2,
+    });
+    setExpr("CA", "segment(P_C,P_A)", false, {
+      color: "#4b2a10",
+      lineWidth: 2,
+    });
 
     const altitudeVisible = showAltitude;
     setExpr(
       "altitude",
-      `segment(C,(${xC},0))`,
+      `segment(P_C,(${xC},0))`,
       !altitudeVisible,
       { color: "#e0792b", lineWidth: 2 }
     );
@@ -155,13 +157,13 @@ export default function TriangleLawsPlaygroundPage() {
     const rightVisible = showRightTriangles && mode === "decompose";
     setExpr(
       "right-1",
-      `segment(A,(${xC},0))`,
+      `segment(P_A,(${xC},0))`,
       !rightVisible,
       { color: "#e0792b", lineWidth: 2 }
     );
     setExpr(
       "right-2",
-      `segment((${xC},0),B)`,
+      `segment((${xC},0),P_B)`,
       !rightVisible,
       { color: "#e0792b", lineWidth: 2 }
     );
@@ -345,33 +347,6 @@ export default function TriangleLawsPlaygroundPage() {
           <div className="rounded-[28px] border border-amber-200 bg-white/80 p-3 shadow-[0_18px_40px_-32px_rgba(120,60,20,0.6)]">
             <div className="relative w-full aspect-[7/6] max-h-[60vh] min-h-[260px] rounded-[22px] bg-white">
               <div ref={graphRef} className="desmos-graph h-full w-full" />
-              <svg
-                className="pointer-events-none absolute inset-0"
-                viewBox={OVERLAY_VIEWBOX}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <g transform={OVERLAY_TRANSFORM}>
-                  <polygon
-                    points={`0,0 ${BASE_LENGTH},0 ${triangle.xC},${triangle.yC}`}
-                    fill="rgba(224,121,43,0.08)"
-                    stroke="#4b2a10"
-                    strokeWidth="0.06"
-                  />
-                  <circle cx="0" cy="0" r="0.12" fill="#4b2a10" />
-                  <circle
-                    cx={BASE_LENGTH}
-                    cy="0"
-                    r="0.12"
-                    fill="#4b2a10"
-                  />
-                  <circle
-                    cx={triangle.xC}
-                    cy={triangle.yC}
-                    r="0.12"
-                    fill="#4b2a10"
-                  />
-                </g>
-              </svg>
             </div>
             {graphError ? (
               <p className="mt-3 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">

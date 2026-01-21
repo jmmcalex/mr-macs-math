@@ -20,7 +20,7 @@ import type {
 } from "@/types/desmos";
 
 const DESMOS_API_KEY = process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "";
-const DESMOS_SRC = `https://www.desmos.com/api/v1.6/calculator.js?apiKey=${encodeURIComponent(
+const DESMOS_SRC = `https://www.desmos.com/api/v1.11/calculator.js?apiKey=${encodeURIComponent(
   DESMOS_API_KEY
 )}`;
 
