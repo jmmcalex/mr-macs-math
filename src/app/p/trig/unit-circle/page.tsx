@@ -146,7 +146,17 @@ export default function UnitCirclePlaygroundPage() {
     const showGraph = mode === "graph";
 
     setExpr("unit-circle", "x^2+y^2=1", !showCircle);
-    setExpr("point", "P=(\\cos(t),\\sin(t))", !showCircle);
+    setExpr("point", "P=(\\cos(t),\\sin(t))", !showCircle, {
+      color: "#e0792b",
+      lineWidth: 3,
+    });
+    calculatorRef.current?.setExpression({
+      id: "point-label",
+      latex: "P=(\\cos(t),\\sin(t))",
+      hidden: !showCircle,
+      label: `(${formatNumber(cosValue, 3)}, ${formatNumber(sinValue, 3)})`,
+      showLabel: showCircle,
+    });
     setExpr("origin-point", "(0,0)", !showCircle, {
       color: "#2f4f6f",
       lineWidth: 3,
@@ -160,13 +170,42 @@ export default function UnitCirclePlaygroundPage() {
       "segment((0,0),(\\cos(t),\\sin(t)))",
       !showCircle
     );
-    setExpr("triangle-A", "", true);
-    setExpr("triangle-B", "", true);
-    setExpr("triangle-C", "", true);
-    setExpr("triangle-base", "", true);
-    setExpr("triangle-vertical", "", true);
-    setExpr("triangle-hyp", "", true);
-    setExpr("triangle-fill", "", true);
+    setExpr("triangle-A", "(0,0)", !showCircle, {
+      color: "#e0792b",
+      lineWidth: 2,
+    });
+    setExpr("triangle-B", `(\\cos(t),0)`, !showCircle, {
+      color: "#e0792b",
+      lineWidth: 2,
+    });
+    setExpr("triangle-C", `(\\cos(t),\\sin(t))`, !showCircle, {
+      color: "#e0792b",
+      lineWidth: 2,
+    });
+    setExpr(
+      "triangle-base",
+      "[(0,0),(\\cos(t),0)]",
+      !showCircle,
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
+    );
+    setExpr(
+      "triangle-vertical",
+      "[(\\cos(t),0),(\\cos(t),\\sin(t))]",
+      !showCircle,
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
+    );
+    setExpr(
+      "triangle-hyp",
+      "[(0,0),(\\cos(t),\\sin(t))]",
+      !showCircle,
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
+    );
+    setExpr(
+      "triangle-fill",
+      "polygon((0,0),(\\cos(t),0),(\\cos(t),\\sin(t)))",
+      !showCircle,
+      { color: "#e0792b", fillOpacity: 0.12 }
+    );
 
     setExpr("sin-graph", "y=\\sin(x)", !showGraph);
     setExpr("cos-graph", "y=\\cos(x)", !showGraph);
@@ -220,7 +259,8 @@ export default function UnitCirclePlaygroundPage() {
     });
   };
 
-  const createCalculator = (mode: "circle" | "graph") => {
+  useEffect(() => {
+    let active = true;
     if (!graphRef.current) return;
     if (!DESMOS_API_KEY) {
       setGraphError("Missing Desmos API key.");
@@ -229,38 +269,39 @@ export default function UnitCirclePlaygroundPage() {
 
     loadDesmos()
       .then((Desmos) => {
-        if (!graphRef.current) return;
-        calculatorRef.current = Desmos.GraphingCalculator(graphRef.current, {
-          expressions: false,
-          keypad: false,
-          settingsMenu: false,
-          zoomButtons: false,
-          expressionsCollapsed: true,
-          lockViewport: true,
-          pointsOfInterest: false,
-          trace: false,
-        });
-        updateExpressions(mode);
+        if (!active || !graphRef.current) return;
+        if (!calculatorRef.current) {
+          calculatorRef.current = Desmos.GraphingCalculator(graphRef.current, {
+            expressions: false,
+            keypad: false,
+            settingsMenu: false,
+            zoomButtons: false,
+            expressionsCollapsed: true,
+            lockViewport: true,
+            pointsOfInterest: false,
+            trace: false,
+          });
+        }
+        updateExpressions(activeTab);
       })
       .catch(() => {
-        setGraphError("Unable to load Desmos.");
+        if (active) {
+          setGraphError("Unable to load Desmos.");
+        }
       });
-  };
-
-  useEffect(() => {
-    createCalculator(activeTab);
 
     return () => {
+      active = false;
       if (calculatorRef.current) {
         calculatorRef.current.destroy();
         calculatorRef.current = null;
       }
     };
-  }, [activeTab]);
+  }, []);
 
   useEffect(() => {
     updateExpressions(activeTab);
-  }, [normalizedTheta]);
+  }, [activeTab, normalizedTheta]);
 
   const sliderValue =
     angleMode === "degrees"
@@ -399,7 +440,7 @@ export default function UnitCirclePlaygroundPage() {
                     Triangle lengths:{" "}
                     <span className="font-semibold">
                       adj {formatNumber(cosValue, 3)}, opp{" "}
-                      {formatNumber(sinValue, 3)}, hyp 1
+                      {formatNumber(sinValue, 3)}
                     </span>
                   </p>
                 </div>
@@ -438,42 +479,6 @@ export default function UnitCirclePlaygroundPage() {
               }`}
             >
               <div ref={graphRef} className="desmos-graph h-full w-full" />
-              {activeTab !== "graph" ? (
-                <svg
-                  className="pointer-events-none absolute inset-0"
-                  viewBox="-1.6 -1.6 3.2 3.2"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <polygon
-                    points={`0,0 ${cosValue},0 ${cosValue},${-sinValue}`}
-                    fill="rgba(224,121,43,0.12)"
-                  />
-                  <line
-                    x1="0"
-                    y1="0"
-                    x2={cosValue}
-                    y2={-sinValue}
-                    stroke="#e0792b"
-                    strokeWidth="0.04"
-                  />
-                  <line
-                    x1="0"
-                    y1="0"
-                    x2={cosValue}
-                    y2="0"
-                    stroke="#e0792b"
-                    strokeWidth="0.04"
-                  />
-                  <line
-                    x1={cosValue}
-                    y1="0"
-                    x2={cosValue}
-                    y2={-sinValue}
-                    stroke="#e0792b"
-                    strokeWidth="0.04"
-                  />
-                </svg>
-              ) : null}
             </div>
             {graphError ? (
               <p className="mt-3 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">

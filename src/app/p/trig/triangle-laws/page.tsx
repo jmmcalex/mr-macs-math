@@ -78,7 +78,6 @@ export default function TriangleLawsPlaygroundPage() {
     "decompose" | "sine" | "cosine"
   >("decompose");
   const [showAltitude, setShowAltitude] = useState(true);
-  const [showRightTriangles, setShowRightTriangles] = useState(true);
   const [graphError, setGraphError] = useState<string | null>(null);
   const graphRef = useRef<HTMLDivElement | null>(null);
   const calculatorRef = useRef<DesmosCalculator | null>(null);
@@ -119,7 +118,14 @@ export default function TriangleLawsPlaygroundPage() {
       id: string,
       latex: string,
       hidden = false,
-      options: { color?: string; lineWidth?: number } = {}
+      options: {
+        color?: string;
+        lineWidth?: number;
+        lines?: boolean;
+        points?: boolean;
+        label?: string;
+        showLabel?: boolean;
+      } = {}
     ) => {
       calculatorRef.current?.setExpression({
         id,
@@ -129,43 +135,53 @@ export default function TriangleLawsPlaygroundPage() {
       });
     };
 
-    setExpr("P_A", "P_A=(0,0)");
-    setExpr("P_B", `P_B=(${BASE_LENGTH},0)`);
-    setExpr("P_C", `P_C=(${xC},${yC})`);
+    const pointA = "(0,0)";
+    const pointB = `(${BASE_LENGTH},0)`;
+    const pointC = `(${xC},${yC})`;
 
-    setExpr("AB", "segment(P_A,P_B)", false, {
+    setExpr("P_A", `P_A=${pointA}`, false, { label: "A", showLabel: true });
+    setExpr("P_B", `P_B=${pointB}`, false, { label: "B", showLabel: true });
+    setExpr("P_C", `P_C=${pointC}`, false, { label: "C", showLabel: true });
+
+    setExpr("AB", `[${pointA},${pointB}]`, false, {
       color: "#4b2a10",
       lineWidth: 2,
+      lines: true,
+      points: false,
     });
-    setExpr("BC", "segment(P_B,P_C)", false, {
+    setExpr("BC", `[${pointB},${pointC}]`, false, {
       color: "#4b2a10",
       lineWidth: 2,
+      lines: true,
+      points: false,
     });
-    setExpr("CA", "segment(P_C,P_A)", false, {
+    setExpr("CA", `[${pointC},${pointA}]`, false, {
       color: "#4b2a10",
       lineWidth: 2,
+      lines: true,
+      points: false,
     });
 
     const altitudeVisible = showAltitude;
     setExpr(
       "altitude",
-      `segment(P_C,(${xC},0))`,
+      `[${pointC},(${xC},0)]`,
       !altitudeVisible,
-      { color: "#e0792b", lineWidth: 2 }
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
     );
 
-    const rightVisible = showRightTriangles && mode === "decompose";
+    const rightVisible = mode === "decompose";
     setExpr(
       "right-1",
-      `segment(P_A,(${xC},0))`,
+      `[${pointA},(${xC},0)]`,
       !rightVisible,
-      { color: "#e0792b", lineWidth: 2 }
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
     );
     setExpr(
       "right-2",
-      `segment((${xC},0),P_B)`,
+      `[(${xC},0),${pointB}]`,
       !rightVisible,
-      { color: "#e0792b", lineWidth: 2 }
+      { color: "#e0792b", lineWidth: 2, lines: true, points: false }
     );
   };
 
@@ -207,7 +223,7 @@ export default function TriangleLawsPlaygroundPage() {
 
   useEffect(() => {
     updateExpressions(activeTab);
-  }, [activeTab, triangle, showAltitude, showRightTriangles]);
+  }, [activeTab, triangle, showAltitude]);
 
   useEffect(() => {
     calculatorRef.current?.resize();
@@ -229,7 +245,6 @@ export default function TriangleLawsPlaygroundPage() {
     setAngleA(50);
     setAngleB(60);
     setShowAltitude(true);
-    setShowRightTriangles(true);
     setActiveTab("decompose");
   };
 
@@ -393,7 +408,7 @@ export default function TriangleLawsPlaygroundPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <button
                 type="button"
                 className={`h-11 rounded-full text-sm font-semibold ${
@@ -404,17 +419,6 @@ export default function TriangleLawsPlaygroundPage() {
                 onClick={() => setShowAltitude((prev) => !prev)}
               >
                 Show altitude
-              </button>
-              <button
-                type="button"
-                className={`h-11 rounded-full text-sm font-semibold ${
-                  showRightTriangles
-                    ? "bg-amber-950 text-amber-50"
-                    : "border border-amber-200 bg-white text-amber-900"
-                }`}
-                onClick={() => setShowRightTriangles((prev) => !prev)}
-              >
-                Show right triangles
               </button>
             </div>
 

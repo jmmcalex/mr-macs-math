@@ -41,40 +41,6 @@ export const domains: Domain[] = [
     ],
   },
   {
-    slug: "number-sense",
-    title: "Number Sense",
-    summary: "Build intuition with patterns, place value, and estimation.",
-    playgrounds: [
-      {
-        slug: "estimation-studio",
-        title: "Estimation Studio",
-        summary: "Practice quick, confident rounding decisions.",
-      },
-      {
-        slug: "place-value-mixer",
-        title: "Place Value Mixer",
-        summary: "Rearrange digits and watch value shifts.",
-      },
-    ],
-  },
-  {
-    slug: "fractions-decimals",
-    title: "Fractions & Decimals",
-    summary: "Connect representations with visual models.",
-    playgrounds: [
-      {
-        slug: "fraction-kitchen",
-        title: "Fraction Kitchen",
-        summary: "Slice, combine, and compare fraction pieces.",
-      },
-      {
-        slug: "decimal-dial",
-        title: "Decimal Dial",
-        summary: "Spin to see how decimals change in real time.",
-      },
-    ],
-  },
-  {
     slug: "geometry",
     title: "Geometry",
     summary: "Explore shapes, angles, and spatial reasoning.",
