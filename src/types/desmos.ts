@@ -19,16 +19,14 @@ export type DesmosCalculator = {
   destroy: () => void;
 };
 
-declare global {
-  interface Window {
-    Desmos?: {
-      GraphingCalculator: (
-        element: HTMLElement,
-        options: Record<string, unknown>
-      ) => DesmosCalculator;
-    };
-    __desmosPromise?: Promise<NonNullable<Window["Desmos"]>>;
-  }
-}
+export type DesmosGlobal = {
+  GraphingCalculator: (
+    element: HTMLElement,
+    options: Record<string, unknown>
+  ) => DesmosCalculator;
+};
 
-export {};
+export type DesmosWindow = Window & {
+  Desmos?: DesmosGlobal;
+  __desmosPromise?: Promise<DesmosGlobal>;
+};

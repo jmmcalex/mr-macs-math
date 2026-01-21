@@ -4,42 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import PlaygroundShell from "@/components/PlaygroundShell";
 import TopNav from "@/components/TopNav";
+import type {
+  DesmosCalculator,
+  DesmosGlobal,
+  DesmosWindow,
+} from "@/types/desmos";
 import {
   clampAngle,
   computeCosineLaw,
   computeSineLawRatios,
   computeTriangle,
 } from "@/lib/triangleMath";
-
-type DesmosCalculator = {
-  setExpression: (expression: {
-    id: string;
-    latex: string;
-    hidden?: boolean;
-    color?: string;
-    lineWidth?: number;
-  }) => void;
-  setMathBounds: (bounds: {
-    left: number;
-    right: number;
-    bottom: number;
-    top: number;
-  }) => void;
-  destroy: () => void;
-  resize: () => void;
-};
-
-declare global {
-  interface Window {
-    Desmos?: {
-      GraphingCalculator: (
-        element: HTMLElement,
-        options: Record<string, unknown>
-      ) => DesmosCalculator;
-    };
-    __desmosPromise?: Promise<NonNullable<Window["Desmos"]>>;
-  }
-}
 
 const DESMOS_API_KEY = process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "";
 const DESMOS_SRC = `https://www.desmos.com/api/v1.6/calculator.js?apiKey=${encodeURIComponent(
@@ -55,24 +30,26 @@ const OVERLAY_TRANSFORM = `translate(0 ${
   DEFAULT_BOUNDS.top + DEFAULT_BOUNDS.bottom
 }) scale(1 -1)`;
 
-const loadDesmos = (): Promise<NonNullable<Window["Desmos"]>> => {
+const loadDesmos = (): Promise<DesmosGlobal> => {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Desmos can only load in the browser."));
   }
 
-  if (window.Desmos) {
-    return Promise.resolve(window.Desmos);
+  const win = window as DesmosWindow;
+
+  if (win.Desmos) {
+    return Promise.resolve(win.Desmos);
   }
 
-  if (!window.__desmosPromise) {
-    window.__desmosPromise = new Promise<NonNullable<Window["Desmos"]>>(
+  if (!win.__desmosPromise) {
+    win.__desmosPromise = new Promise<DesmosGlobal>(
       (resolve, reject) => {
         const existing = document.querySelector<HTMLScriptElement>(
           "script[data-desmos]"
         );
         if (existing) {
           existing.addEventListener("load", () =>
-            resolve(window.Desmos as NonNullable<Window["Desmos"]>)
+            resolve(win.Desmos as DesmosGlobal)
           );
           existing.addEventListener("error", () =>
             reject(new Error("Failed to load Desmos."))
@@ -86,14 +63,14 @@ const loadDesmos = (): Promise<NonNullable<Window["Desmos"]>> => {
         script.defer = true;
         script.dataset.desmos = "true";
         script.onload = () =>
-          resolve(window.Desmos as NonNullable<Window["Desmos"]>);
+          resolve(win.Desmos as DesmosGlobal);
         script.onerror = () => reject(new Error("Failed to load Desmos."));
         document.head.appendChild(script);
       }
     );
   }
 
-  return window.__desmosPromise;
+  return win.__desmosPromise;
 };
 
 const formatNumber = (value: number, decimals = 3) => {

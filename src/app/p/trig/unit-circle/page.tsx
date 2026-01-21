@@ -13,7 +13,11 @@ import {
   radiansToDegrees,
   sinCosTan,
 } from "@/lib/trig";
-import type { DesmosCalculator } from "@/types/desmos";
+import type {
+  DesmosCalculator,
+  DesmosGlobal,
+  DesmosWindow,
+} from "@/types/desmos";
 
 const DESMOS_API_KEY = process.env.NEXT_PUBLIC_DESMOS_API_KEY ?? "";
 const DESMOS_SRC = `https://www.desmos.com/api/v1.6/calculator.js?apiKey=${encodeURIComponent(
@@ -29,24 +33,26 @@ const GRAPH_BOUNDS = {
   top: 1.5,
 };
 
-const loadDesmos = (): Promise<NonNullable<Window["Desmos"]>> => {
+const loadDesmos = (): Promise<DesmosGlobal> => {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Desmos can only load in the browser."));
   }
 
-  if (window.Desmos) {
-    return Promise.resolve(window.Desmos);
+  const win = window as DesmosWindow;
+
+  if (win.Desmos) {
+    return Promise.resolve(win.Desmos);
   }
 
-  if (!window.__desmosPromise) {
-    window.__desmosPromise = new Promise<NonNullable<Window["Desmos"]>>(
+  if (!win.__desmosPromise) {
+    win.__desmosPromise = new Promise<DesmosGlobal>(
       (resolve, reject) => {
         const existing = document.querySelector<HTMLScriptElement>(
           "script[data-desmos]"
         );
         if (existing) {
           existing.addEventListener("load", () =>
-            resolve(window.Desmos as NonNullable<Window["Desmos"]>)
+            resolve(win.Desmos as DesmosGlobal)
           );
           existing.addEventListener("error", () =>
             reject(new Error("Failed to load Desmos."))
@@ -60,14 +66,14 @@ const loadDesmos = (): Promise<NonNullable<Window["Desmos"]>> => {
         script.defer = true;
         script.dataset.desmos = "true";
         script.onload = () =>
-          resolve(window.Desmos as NonNullable<Window["Desmos"]>);
+          resolve(win.Desmos as DesmosGlobal);
         script.onerror = () => reject(new Error("Failed to load Desmos."));
         document.head.appendChild(script);
       }
     );
   }
 
-  return window.__desmosPromise;
+  return win.__desmosPromise;
 };
 
 const anglePresets = [
