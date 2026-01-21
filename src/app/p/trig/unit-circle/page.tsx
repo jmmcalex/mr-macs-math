@@ -123,7 +123,13 @@ export default function UnitCirclePlaygroundPage() {
       id: string,
       latex: string,
       hidden = false,
-      options: { color?: string; lineWidth?: number; fillOpacity?: number } = {}
+      options: {
+        color?: string;
+        lineWidth?: number;
+        fillOpacity?: number;
+        lines?: boolean;
+        points?: boolean;
+      } = {}
     ) => {
       calculatorRef.current?.setExpression({
         id,
