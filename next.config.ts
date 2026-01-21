@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
-  output: 'export',
-  basePath: '/mr-macs-math',
+  output: "export",
+  basePath: isProd ? "/mr-macs-math" : undefined,
   images: {
     unoptimized: true,
   },

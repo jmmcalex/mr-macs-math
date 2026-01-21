@@ -33,3 +33,13 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Publishing day updates
+```bash
+./scripts/publish-days.sh "Update daily lesson plan"
+```
+
+## Publishing all site updates
+```bash
+./scripts/publish-site.sh "Publish site updates"
+```

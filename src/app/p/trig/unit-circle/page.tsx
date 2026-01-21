@@ -230,7 +230,7 @@ export default function UnitCirclePlaygroundPage() {
           settingsMenu: false,
           zoomButtons: false,
           expressionsCollapsed: true,
-          lockViewport: false,
+          lockViewport: true,
           pointsOfInterest: false,
           trace: false,
         });
@@ -320,7 +320,7 @@ export default function UnitCirclePlaygroundPage() {
       onResetView={handleResetView}
       topNav={
         <TopNav
-          backHref="/d/trigonometry"
+          backHref="/d/trig"
           backLabel="Trigonometry"
           contextLabel="Unit Circle"
         />

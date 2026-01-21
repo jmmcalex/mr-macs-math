@@ -7,14 +7,19 @@ export type Domain = {
 
 export const domains: Domain[] = [
   {
-    slug: "trigonometry",
+    slug: "trig",
     title: "Trigonometry",
-    summary: "Explore unit-circle relationships and trig functions.",
+    summary: "Angle-driven ratios, unit circle, and triangle laws.",
     playgrounds: [
       {
         slug: "unit-circle",
         title: "Unit Circle",
         summary: "Connect angles, triangles, and sinusoidal graphs.",
+      },
+      {
+        slug: "triangle-laws",
+        title: "Triangle Laws",
+        summary: "Decompose a triangle and compare sine/cosine laws.",
       },
     ],
   },
